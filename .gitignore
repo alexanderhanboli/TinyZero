@@ -7,6 +7,7 @@
 **/*.tar.gz
 **/playground
 **/wandb
+dm_math/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
