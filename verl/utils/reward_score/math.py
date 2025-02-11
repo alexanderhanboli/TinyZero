@@ -22,6 +22,13 @@ def compute_score(solution_str, ground_truth) -> float:
             answer = remove_boxed(string_in_last_boxed)
             if is_equiv(answer, ground_truth):
                 retval = 1.
+                
+            print(f"--------------------------------")
+            print(f"Ground truth: {ground_truth}")
+            print(f"Answer: {answer}")
+            print(f"Score: {retval}")
+            print(f"Solution string:\n{solution_str}\n")
+            
     except Exception as e:
         print(e)
 

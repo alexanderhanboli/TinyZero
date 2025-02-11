@@ -1,6 +1,6 @@
 set -x
 
-export CUDA_VISIBLE_DEVICES=4,5,6,7
+export CUDA_VISIBLE_DEVICES=0,1,2,3
 export TORCH_USE_CUDA_DSA=1
 export CUDA_LAUNCH_BLOCKING=1
 
@@ -9,16 +9,15 @@ export NCCL_P2P_DISABLE=1
 
 export N_GPUS=4
 export BASE_MODEL=Qwen/Qwen2.5-3B
-export DATA_DIR=$HOME/efs/tinyzero/countdown/data/
 export ROLLOUT_TP_SIZE=2
-export PROJECT_NAME=TinyZero-0207
-export EXPERIMENT_NAME=countdown-balance-qwen-2.5-3b
+export PROJECT_NAME=TinyZero-math
+export EXPERIMENT_NAME=balance-qwen-2.5-3b
 export HYDRA_FULL_ERROR=1
 
 export WANDB_API_KEY=be7f64dd8438dcb43e912a32be795ebc65455162
 
-math_train_path=$HOME/efs/tinyzero/countdown/data/train.parquet
-math_test_path=$HOME/efs/tinyzero/countdown/data/test.parquet
+math_train_path=$HOME/efs/tinyzero/math-300/train.parquet
+math_test_path=$HOME/efs/tinyzero/math-300/test.parquet
 
 train_files="['$math_train_path']"
 test_files="['$math_test_path']"
@@ -30,16 +29,16 @@ GPU_IDENTIFIER="gpus-${CUDA_VISIBLE_DEVICES//,/}"
 LOG_FILENAME="verl_${PROJECT_NAME}_${EXPERIMENT_NAME}_${GPU_IDENTIFIER}.log"
 
 # Set dynamic checkpoint directory
-CKPT_DIR="$HOME/efs/tinyzero/countdown/checkpoints/${PROJECT_NAME}/${EXPERIMENT_NAME}_${GPU_IDENTIFIER}"
+CKPT_DIR="$HOME/efs/tinyzero/checkpoints/${PROJECT_NAME}/${EXPERIMENT_NAME}_${GPU_IDENTIFIER}"
 
-max_token_len_per_gpu=3000
+max_token_len_per_gpu=4000
 
 python3 -m verl.trainer.main_ppo \
     data.train_files="$train_files" \
     data.val_files="$test_files" \
     data.train_batch_size=256 \
     data.val_batch_size=1312 \
-    data.max_prompt_length=256 \
+    data.max_prompt_length=1200 \
     data.max_response_length=1024 \
     actor_rollout_ref.model.path=$BASE_MODEL \
     actor_rollout_ref.actor.optim.lr=1e-6 \
