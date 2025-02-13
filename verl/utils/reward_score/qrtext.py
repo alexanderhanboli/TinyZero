@@ -23,11 +23,11 @@ def compute_score(solution_str, ground_truth) -> float:
             if is_equiv(answer, ground_truth):
                 retval = 1.
                 
-            # print(f"--------------------------------")
-            # print(f"Ground truth: {ground_truth}")
-            # print(f"Answer: {answer}")
-            # print(f"Score: {retval}")
-            # print(f"Solution string:\n{solution_str}\n")
+            print(f"--------------------------------")
+            print(f"Ground truth: {ground_truth}")
+            print(f"Answer: {answer}")
+            print(f"Score: {retval}")
+            print(f"Solution string:\n{solution_str}\n")
             
     except Exception as e:
         print(e)

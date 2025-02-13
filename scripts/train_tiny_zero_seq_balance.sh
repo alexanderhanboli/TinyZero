@@ -1,26 +1,29 @@
 set -x
 
-export CUDA_VISIBLE_DEVICES=0,1,2,3
+export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+export N_GPUS=8
+
 export TORCH_USE_CUDA_DSA=1
 export CUDA_LAUNCH_BLOCKING=1
 
 export NCCL_DEBUG=INFO
 export NCCL_P2P_DISABLE=1
 
-export N_GPUS=4
 export BASE_MODEL=Qwen/Qwen2.5-3B
 export ROLLOUT_TP_SIZE=2
-export PROJECT_NAME=TinyZero-math
-export EXPERIMENT_NAME=balance-qwen-2.5-3b
+export PROJECT_NAME=TinyZero-mixed
+export EXPERIMENT_NAME=dynamic-batching-qwen-2.5-3b
 export HYDRA_FULL_ERROR=1
 
 export WANDB_API_KEY=be7f64dd8438dcb43e912a32be795ebc65455162
 
 math_train_path=$HOME/efs/tinyzero/math-300/train.parquet
 math_test_path=$HOME/efs/tinyzero/math-300/test.parquet
+qrtext_train_path=$HOME/efs/tinyzero/qrtext/train.parquet
+qrtext_test_path=$HOME/efs/tinyzero/qrtext/test.parquet
 
-train_files="['$math_train_path']"
-test_files="['$math_test_path']"
+train_files="['$math_train_path', '$qrtext_train_path']"
+test_files="['$qrtext_test_path']"
 
 # Generate a GPU-based identifier
 GPU_IDENTIFIER="gpus-${CUDA_VISIBLE_DEVICES//,/}"
@@ -38,7 +41,7 @@ python3 -m verl.trainer.main_ppo \
     data.val_files="$test_files" \
     data.train_batch_size=256 \
     data.val_batch_size=1312 \
-    data.max_prompt_length=1200 \
+    data.max_prompt_length=2048 \
     data.max_response_length=1024 \
     actor_rollout_ref.model.path=$BASE_MODEL \
     actor_rollout_ref.actor.optim.lr=1e-6 \
@@ -77,5 +80,5 @@ python3 -m verl.trainer.main_ppo \
     +trainer.val_before_train=False \
     trainer.nnodes=1 \
     trainer.save_freq=100 \
-    trainer.test_freq=100 \
+    trainer.test_freq=10 \
     trainer.total_epochs=15 2>&1 | tee "$LOG_FILENAME"
