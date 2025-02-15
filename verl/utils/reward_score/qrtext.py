@@ -32,8 +32,39 @@ def compute_score(solution_str, ground_truth) -> float:
     except Exception as e:
         print(e)
 
-    return retval
+    return retval    
 
+
+def consider_numeric_equivalence(str1: str, str2: str):
+    try:
+        pred = str1.lower()
+        gold = str2.lower()
+        
+        if pred == gold:
+            return 1.0
+        
+        error_scale = 0.03
+        
+        if gold[-1] != '%':
+            gold_float = float(gold)
+        else:
+            gold_float = float(gold[:-1]) / 100
+        
+        if pred[-1] != '%':
+            pred_float = float(pred)
+        else:
+            pred_float = float(pred[:-1]) / 100
+        
+        lower_bound = gold_float * (1 - error_scale)
+        upper_bound = gold_float * (1 + error_scale)
+        
+        score = 1.0 if lower_bound <= pred_float <= upper_bound else 0.0
+        
+        return score
+    except Exception as e:
+        print(f"Error in compute_score: {e}")
+        return 0.0
+    
 
 # string normalization from https://github.com/EleutherAI/lm-evaluation-harness/blob/master/lm_eval/tasks/hendrycks_math.py
 def is_equiv(str1, str2, verbose=False):
@@ -48,7 +79,7 @@ def is_equiv(str1, str2, verbose=False):
         ss2 = strip_string(str2)
         if verbose:
             print(ss1, ss2)
-        return ss1 == ss2
+        return consider_numeric_equivalence(ss1, ss2)
     except Exception:
         return str1 == str2
 
